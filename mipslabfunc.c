@@ -27,7 +27,7 @@ static void num32asc( char * s, int );
 
 //Insert start, countdown mm
 
-
+//char s[4][20] = { { 0 }, { 0 } };
 
 /* quicksleep:
    A simple function to create a small delay.
@@ -147,6 +147,21 @@ void display_string(int line, char *s) {
 			textbuffer[line][i] = ' ';
 }
 
+void display_score(int line, char s[4][20]) {
+    int temp = 0;
+    int i;
+    if (line < 0 || line >= 4)
+        return;
+    if (!s)
+        return;
+
+    for (i = 0; i < 4; i++) {
+        temp = s[i] +48;
+        textbuffer[line][i] = temp;
+    }
+    return;
+}
+
 void display_image(int x, const uint8_t *data) {
 	int i, j;
 	
@@ -167,7 +182,30 @@ void display_image(int x, const uint8_t *data) {
 			spi_send_recv(data[i*128 + j]);
 	}
 }
+void screen_clear(void) {
+    int i;
+    int j = 0;
 
+    // Clear screen
+    for (j; j < 4; j++) {
+
+        DISPLAY_CHANGE_TO_COMMAND_MODE;
+        spi_send_recv(0x22);
+        spi_send_recv(j);	// row 0, 1, 2, 3
+        spi_send_recv(0x0);
+        spi_send_recv(0x21);
+        spi_send_recv(0);
+        spi_send_recv(127);
+        DISPLAY_CHANGE_TO_DATA_MODE;
+
+        i = 0;
+
+        for (; i < 128; i++) {
+            spi_send_recv(0);
+        }
+
+    }
+}
 void display_update(void) {
 	int i, j, k;
 	int c;

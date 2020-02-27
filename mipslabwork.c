@@ -21,7 +21,9 @@ uint8_t screen[128 * 4] = { 0 };
 uint8_t screen2[128 * 4] = { 0 };
 int pos = 256;
 int n = 0;
+int count;
 int pos2 = 128;
+int bpos = 128;
 int m = 255;
 int k = 0;
 int gameState;
@@ -29,6 +31,12 @@ int gameState;
 //Gamestate = 1 => game over
 //Gamestate = 0 => ongoing game
 int counter;
+
+int gameScore1;
+int gameScore2;
+int gameScore3;
+int score;
+int ticks;
 
 //gamecounter ökar varje gång ny bil kommer, på port e
 
@@ -48,6 +56,7 @@ void user_isr(void)
 /* Lab-specific initialization goes here */
 void labinit(void)
 {
+	gameState = 2;
 	volatile int* trise = (volatile int*)0xbf886100;
 	*trise = *trise & 0xffffff00;
 
@@ -84,6 +93,10 @@ void StartCountDown(void) {
 	display_string(2, "      GO!");
 	display_update();
 	delay(1000);
+
+	display_string(2, "      ");
+	display_update();
+	//delay(1000);
 
 	display_update();
 
@@ -148,11 +161,19 @@ void MainMenuFade(void) {
 
 /* This function is called repetitively from the main program */
 void labwork(void)
-{
-
-
+{   
 	int btnvalue = getbtns();
 
+	if (gameState == 1) {
+		game_over();
+		return;
+	}
+	if (gameState == 3) {
+		high_score();
+		return;
+	}
+
+	
 	if (gameState == 2) {                //2 = Main Menu/Start Screen
 		while (gameState == 2) {
 			delay(10);
@@ -176,7 +197,7 @@ void labwork(void)
 	if (IFS(0)) {
 		IFS(0) = 0;
 		movedownlogic();
-
+		ticks++;
 	}
 
 
@@ -201,7 +222,7 @@ void labwork(void)
 			gameState = 0;
 
 			if ((gameState == 0) && (btnvalue & 0x04 == 4)) {
-
+				screen_clear();
 				display_string(0, "Game paused");
 				display_string(1, "");
 				display_string(2, "");
@@ -216,30 +237,32 @@ void labwork(void)
 
 /* every tick the block moves down and checks if tetris */
 void movedownlogic(void) {
+	int i;
 	if (screen[pos2 - 1] == 0) {
-		screen[pos2 + 7] = 0;
-		screen[--pos2] = m;
-
-	}
-	else if (screen[pos2 - 1] == 255 || screen[pos2 - 1] == 254 || screen[pos2 - 1] == 252 || screen[pos2 - 1] == 248 || screen[pos2 - 1] == 240 || screen[pos2 - 1] == 224 || screen[pos2 - 1] == 192 || screen[pos2 - 1] == 128 || screen[pos2 - 1] == 1 || screen[pos2 - 1] == 2 || screen[pos2 - 1] == 4 || screen[pos2 - 1] == 8 || screen[pos2 - 1] == 16 || screen[pos2 - 1] == 32 || screen[pos2 - 1] == 64) {
-
-		newblock();
-
-	}
-
-	else {
-		if (screen[pos2 + 7] == m) {
+		if (bpos - 7 > pos2) {
 			screen[pos2 + 7] = 0;
-
-		}
-		else {
-			screen[pos2 + 7] = (255 & ~m);
-
+			
 		}
 
-		screen[--pos2] = 255;
+			screen[--pos2] = m;
+		
+	
 
 	}
+	else if ((screen[pos2 - 1] == 254 || screen[pos2 - 1] == 252 || screen[pos2 - 1] == 248 || screen[pos2 - 1] == 240 || screen[pos2 - 1] == 224 || screen[pos2 - 1] == 192 || screen[pos2 - 1] == 128 || screen[pos2 - 1] == 1 || screen[pos2 - 1] == 2 || screen[pos2 - 1] == 4 || screen[pos2 - 1] == 8 || screen[pos2 - 1] == 16 || screen[pos2 - 1] == 32 || screen[pos2 - 1] == 64)&& (bpos-120 == pos2|| bpos - 121 == pos2|| bpos - 122 == pos2|| bpos - 123 == pos2|| bpos - 124 == pos2||bpos-125 == pos2|| bpos - 126 == pos2|| bpos - 127 == pos2|| bpos - 128 == pos2) ) {
+
+
+		gameState = 1;
+		game_over();
+
+
+	}
+	if (bpos - 128 == pos2) {
+		newblock();
+		score++;
+	}
+
+
 }
 
 
@@ -247,8 +270,8 @@ void movedownlogic(void) {
 // add new block at the top of the screen 
 void newblock(void) {
 	int blocktype = 0;//(pos+n)%4;  // value between [0-3]
-	pos2 = 245;
 	int i;
+	counter++;
 
 	for (i = 0; i < 8; i++) {
 		screen[pos2 + i] = 255;
@@ -256,9 +279,11 @@ void newblock(void) {
 	}
 
 	if (blocktype == 0)
-		for (i = 0; i < 8; i++)
-			screen[pos2 + i] = 255;
-
+		for(i = 0; i< 8; i++)
+			screen[pos2 + i] = 0;
+			pos2 += 128;
+			score++;
+			count = 0;
 }
 
 //right button = go down
@@ -317,7 +342,77 @@ void move(int k) {
 
 	}
 }
-
-void points(void) {
-	(*_PORTE)++;
+void addscore(void) {
+	if (gameScore1 == 0) {
+		gameScore1 = score;
+	}
+	else {
+		sortscore();
+	}
 }
+void sortscore(void) {
+	if (gameScore2 == 0) {
+		gameScore2 = score;
+	}
+	if (gameScore3 == 0) {
+		gameScore3 = score;
+	}
+	else {
+		if (score > gameScore3 && score < gameScore2) {
+			gameScore3 = score;
+		}
+		if (score > gameScore2&& score < gameScore1) {
+			gameScore2 = score;
+		}
+		else {
+			gameScore1 = score;
+		}
+	}
+}
+void game_over(void) {
+	display_string(0, "GAME OVER");
+	display_update();
+	if ((getbtns() & 0x01) == 1) {
+		gameState = 3;
+	}
+
+
+}
+void restartgame(void) {
+	int score = 0;
+	int pos2 = 128;
+	int bpos = 128;
+	int pos = 256;
+	screen_clear();
+	gameState = 0;
+}
+void high_score(void) {
+	addscore();
+	int i;
+	char* c1 = itoaconv(gameScore1);
+	display_string(0, "Highscore: ");
+	for (i = 0; i < 3; i++) {
+		if (i == 0) {
+			display_string(1, c1);
+		}
+		if (i == 1){
+			char* c2 = itoaconv(gameScore2);
+				display_string(2, c2); }
+		if (i == 2) {
+			char* c3 = itoaconv(gameScore3);
+				display_string(3, c3);
+		}
+	}
+	display_update();
+	delay(2000);
+	while (!getbtns()) {
+		delay(20000);
+	}
+	while(getbtns())
+		restartgame();
+	
+}
+
+
+
+

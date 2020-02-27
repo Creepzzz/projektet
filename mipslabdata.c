@@ -9,6 +9,7 @@
 #include "mipslab.h"  /* Declatations for these labs */
 
 char textbuffer[4][16];
+char s[4][20];
 
 //Inget ändrat
 

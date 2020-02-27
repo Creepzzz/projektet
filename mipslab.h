@@ -14,6 +14,7 @@ void display_image(int x, const uint8_t *data);
 void display_init(void);
 void display_string(int line, char *s);
 void display_update(void);
+void screen_clear(void);
 uint8_t spi_send_recv(uint8_t data);
 
 /* Declare lab-related functions from mipslabfunc.c */
@@ -24,7 +25,13 @@ void quicksleep(int cyc);
 void tick( unsigned int * timep );
 
 extern gameState;
+extern char s[4][20];
 
+extern score;
+extern gameScore0;
+extern gameScore1;
+extern gameScore2;
+extern gameScore3;
 /* Declare display_debug - a function to help debugging.
 
    After calling display_debug,
