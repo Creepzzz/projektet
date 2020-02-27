@@ -7,6 +7,8 @@
 
    For copyright and licensing, see file COPYING */
 
+//Ändrat sista funktionerna
+
 /* Declare display-related functions from mipslabfunc.c */
 void display_image(int x, const uint8_t *data);
 void display_init(void);
@@ -20,6 +22,8 @@ void labwork(void);
 int nextprime( int inval );
 void quicksleep(int cyc);
 void tick( unsigned int * timep );
+
+extern gameState;
 
 /* Declare display_debug - a function to help debugging.
 
@@ -58,5 +62,5 @@ void enable_interrupt(void);
 void rightbtnpressed(void);
 void leftbtnpressed(void);
 void movedownlogic(void);
-void tetris(void);
+//Onödiga
 void newblock(void);

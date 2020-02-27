@@ -8,6 +8,8 @@
 #include <pic32mx.h>  /* Declarations of system-specific addresses etc */
 #include "mipslab.h"  /* Declatations for these labs */
 
+//Nothing changed
+
 /* Declare a helper function which is local to this file */
 static void num32asc( char * s, int ); 
 
@@ -22,6 +24,10 @@ static void num32asc( char * s, int );
 
 #define DISPLAY_TURN_OFF_VDD (PORTFSET = 0x40)
 #define DISPLAY_TURN_OFF_VBAT (PORTFSET = 0x20)
+
+//Insert start, countdown mm
+
+
 
 /* quicksleep:
    A simple function to create a small delay.
