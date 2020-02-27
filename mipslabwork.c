@@ -1,13 +1,9 @@
 /* mipslabwork.c
-
    This file written 2015 by F Lundevall
    Updated 2017-04-21 by F Lundevall
-
    This file should be changed by YOU! So you must
    add comment(s) here with your name(s) and date(s):
-
    This file modified 2017-04-31 by Ture Teknolog
-
    For copyright and licensing, see file COPYING */
 
 #include <stdint.h>   /* Declarations of uint_32 and the like */
@@ -26,7 +22,7 @@ uint8_t screen2[128 * 4] = { 0 };
 int pos = 256;
 int n = 0;
 int pos2 = 128;
-int m = 15;
+int m = 255;
 int k = 0;
 int gameState;
 //Gamestate = 2 => pregame
@@ -55,9 +51,9 @@ void labinit(void)
 	volatile int* trise = (volatile int*)0xbf886100;
 	*trise = *trise & 0xffffff00;
 
-	
+
 	*_PORTE = *_PORTE & 0xffffff00;
-	
+
 
 	TRISD = TRISD & 0x0fe0;
 
@@ -72,13 +68,7 @@ void labinit(void)
 
 	display_image(0, screen);
 
-	
-	if (k == 0)
-	{
-		gameState = 2;
-		k = 1;
-	}
-	return;
+
 }
 
 void StartCountDown(void) {
@@ -159,7 +149,8 @@ void MainMenuFade(void) {
 /* This function is called repetitively from the main program */
 void labwork(void)
 {
-	
+
+
 	int btnvalue = getbtns();
 
 	if (gameState == 2) {                //2 = Main Menu/Start Screen
@@ -167,13 +158,14 @@ void labwork(void)
 			delay(10);
 			display_string(2, "    Speedo");
 			display_update();
-			if (getbtns()!=0 )
+			if (getbtns() != 0)
 			{
 				gameState = 0;
 			}
 		}
-		
+
 	}
+
 
 	if (gamepaused)
 		return;
@@ -184,40 +176,31 @@ void labwork(void)
 	if (IFS(0)) {
 		IFS(0) = 0;
 		movedownlogic();
-		
+
 	}
 
-	
+
 	if (btnvalue != 0 && btnpressed == 0) {
 		btnpressed = 1;
 
 		if ((btnvalue & 0x04) == 4) {
-			MainMenuFade();           
-			StartCountDown();  
+			MainMenuFade();
+			StartCountDown();
 			delay(500);
-
-			/*
-			while (getbtns() != 4) {
-				counter++;
-				if (counter > 10) {
-					counter = 0;
-					(*_PORTE)++;
-				}
-			}*/
 
 		}
 
-		if ((btnvalue & 0x01) == 1 && (pos < 384 || n == 15))
+		if ((btnvalue & 0x01) == 1 && (pos < 384))
 			leftbtnpressed();
 
-		if ((btnvalue & 0x02) == 2 && (pos > 127 || n == 240))
+		if ((btnvalue & 0x02) == 2 && (pos >= 128 || n >= 1))
 			rightbtnpressed();
 
 		if ((btnvalue & 0x04) == 4) {
 
 			gameState = 0;
 
-			if ((gameState == 0 ) &&(btnvalue & 0x04 ==4)) {
+			if ((gameState == 0) && (btnvalue & 0x04 == 4)) {
 
 				display_string(0, "Game paused");
 				display_string(1, "");
@@ -234,27 +217,28 @@ void labwork(void)
 /* every tick the block moves down and checks if tetris */
 void movedownlogic(void) {
 	if (screen[pos2 - 1] == 0) {
-		screen[pos2 + 3] = 0;
+		screen[pos2 + 7] = 0;
 		screen[--pos2] = m;
-		
+
 	}
-	else if (screen[pos2 - 1] == 255 || screen[pos2 - 1] == m) {
-		
+	else if (screen[pos2 - 1] == 255 || screen[pos2 - 1] == 254 || screen[pos2 - 1] == 252 || screen[pos2 - 1] == 248 || screen[pos2 - 1] == 240 || screen[pos2 - 1] == 224 || screen[pos2 - 1] == 192 || screen[pos2 - 1] == 128 || screen[pos2 - 1] == 1 || screen[pos2 - 1] == 2 || screen[pos2 - 1] == 4 || screen[pos2 - 1] == 8 || screen[pos2 - 1] == 16 || screen[pos2 - 1] == 32 || screen[pos2 - 1] == 64) {
+
 		newblock();
+
 	}
-	
+
 	else {
-		if (screen[pos2 + 3] == m) {
-			screen[pos2 + 3] = 0;
-			
+		if (screen[pos2 + 7] == m) {
+			screen[pos2 + 7] = 0;
+
 		}
 		else {
-			screen[pos2 + 3] = (255 & ~m);
-			
+			screen[pos2 + 7] = (255 & ~m);
+
 		}
 
 		screen[--pos2] = 255;
-		
+
 	}
 }
 
@@ -265,21 +249,22 @@ void newblock(void) {
 	int blocktype = 0;//(pos+n)%4;  // value between [0-3]
 	pos2 = 245;
 	int i;
-	
-	for (i = 0; i < 4; i++) {
+
+	for (i = 0; i < 8; i++) {
 		screen[pos2 + i] = 255;
-		(*_PORTE)++;
+
 	}
 
 	if (blocktype == 0)
-		for (i = 0; i < 4; i++)   
-			screen[pos2 + i] = 255;     
+		for (i = 0; i < 8; i++)
+			screen[pos2 + i] = 255;
 
 }
 
 //right button = go down
 void rightbtnpressed(void) {
 
+	//points();
 	move(2);
 
 }
@@ -287,6 +272,7 @@ void rightbtnpressed(void) {
 //left button = go up
 void leftbtnpressed(void) {
 
+	//points();
 	move(1);
 
 }
@@ -332,3 +318,6 @@ void move(int k) {
 	}
 }
 
+void points(void) {
+	(*_PORTE)++;
+}
