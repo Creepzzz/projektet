@@ -24,6 +24,7 @@ int pos = 256;
 int n = 0;
 int count;
 int pos2 = 128;
+int pos3 = 384;
 int bpos = 128;
 int bpos2 = 0;
 int m = 255;
@@ -229,7 +230,7 @@ void labwork(void)
         for(i = 0; i< 8; i++)
             screen[pos2 + i] = 0;
      n = 0;
-     count;
+     score = 0;
      pos2 = 128;
      bpos = 128;
      bpos2 = 0;
@@ -282,15 +283,13 @@ void movedownlogic(void) {
 	if (screen[pos2 - 1] == 0) {
 		if (bpos - 7 > pos2) {
 			screen[pos2 + 7] = 0;
-			
 		}
-
 			screen[--pos2] = m;
 		
 	
 
 	}
-	else if ((screen[pos2 - 1] == 255 || screen[pos2 - 1] == 254 || screen[pos2 - 1] == 252 || screen[pos2 - 1] == 248 || screen[pos2 - 1] == 240 || screen[pos2 - 1] == 224 || screen[pos2 - 1] == 192 || screen[pos2 - 1] == 128 || screen[pos2 - 1] == 1 || screen[pos2 - 1] == 2 || screen[pos2 - 1] == 4 || screen[pos2 - 1] == 8 || screen[pos2 - 1] == 16 || screen[pos2 - 1] == 32 || screen[pos2 - 1] == 64)&& (bpos-120 == pos2|| bpos - 121 == pos2|| bpos - 122 == pos2|| bpos - 123 == pos2|| bpos - 124 == pos2||bpos-125 == pos2|| bpos - 126 == pos2|| bpos - 127 == pos2|| bpos - 128 == pos2) ) {
+	else if ((screen[pos2 - 1] == 255 || screen[pos2 - 1] == 254 || screen[pos2 - 1] == 252 || screen[pos2 - 1] == 248 || screen[pos2 - 1] == 240 || screen[pos2 - 1] == 224 || screen[pos2 - 1] == 192 || screen[pos2 - 1] == 128 || screen[pos2 - 1] == 1 || screen[pos2 - 1] == 2 || screen[pos2 - 1] == 4 || screen[pos2 - 1] == 8 || screen[pos2 - 1] == 16 || screen[pos2 - 1] == 32 ||screen[pos2 - 1-128] == 255 || screen[pos2 - 1-128] == 254 || screen[pos2 - 1-128] == 252 || screen[pos2 - 1-128] == 248 || screen[pos2 - 1-128] == 240 || screen[pos2 - 1-128] == 224 || screen[pos2 - 1-128] == 192 || screen[pos2 - 1-128] == 128 || screen[pos2 - 1-128] == 1 || screen[pos2 - 1-128] == 2 || screen[pos2 - 1-128] == 4 || screen[pos2 - 1-128] == 8 || screen[pos2 - 1-128] == 16 || screen[pos2 - 1-128] == 32 || screen[pos2 - 1-128] == 64) && (bpos-112 == pos2|| bpos - 113 == pos2|| bpos - 114 == pos2|| bpos - 115 == pos2|| bpos - 116 == pos2||bpos-117 == pos2|| bpos - 118 == pos2|| bpos - 119 == pos2|| bpos - 120 == pos2) ) {
 
 
 		gameState = 1;
@@ -323,7 +322,7 @@ void newblock(int y) {
             bpos = 128;
             pos2 = 128;
             score++;
-             gameState = 6;
+            gameState = 6;
         }
         if(counter == 0){
             for(i = 0; i< 8; i++)
@@ -456,26 +455,30 @@ void addscore(void) {
 		gameScore1 = score;
 	}
     else if(gameScore1 < score)
-        gameScore1 = score;
-	else {
-		sortscore();
-	}
+        sortscore(1);
+    else if(gameScore1 > score)
+        sortscore(2);
 }
-void sortscore(void) {
-	if (gameScore2 == 0) {
-		gameScore2 = score;
-	}
-    if (gameScore3 == 0) {
-		gameScore3 = score;
-	}
-	else {
-        if (score > gameScore2 && score < gameScore1) {
+void sortscore(int x) {
+    
+    switch(x){
+        case 1 :
+        if (gameScore1 > gameScore2) {
+            gameScore3 = gameScore2;
+            gameScore2 = gameScore1;
+                gameScore1 = score;
+            }
+            break;
+        case 2:
+            if(score > gameScore2){
+                int temp;
+                temp = gameScore2;
+                gameScore3 = temp;
                 gameScore2 = score;
             }
-		else {
-			gameScore3 = score;
-		}
-	}
+            else if(score > gameScore3 && score < gameScore2)
+                gameScore3 = score;
+}
 }
 
 void game_over(void) {
