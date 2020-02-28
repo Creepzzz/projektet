@@ -26,6 +26,7 @@ void tick( unsigned int * timep );
 
 extern gameState;
 extern char s[4][20];
+extern uint8_t screen[128 * 4];
 
 extern score;
 extern gameScore0;
@@ -70,4 +71,4 @@ void rightbtnpressed(void);
 void leftbtnpressed(void);
 void movedownlogic(void);
 //Onödiga
-void newblock(void);
+void newblock(int y);

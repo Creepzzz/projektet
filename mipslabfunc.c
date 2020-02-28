@@ -184,28 +184,12 @@ void display_image(int x, const uint8_t *data) {
 }
 void screen_clear(void) {
     int i;
-    int j = 0;
 
-    // Clear screen
-    for (j; j < 4; j++) {
-
-        DISPLAY_CHANGE_TO_COMMAND_MODE;
-        spi_send_recv(0x22);
-        spi_send_recv(j);	// row 0, 1, 2, 3
-        spi_send_recv(0x0);
-        spi_send_recv(0x21);
-        spi_send_recv(0);
-        spi_send_recv(127);
-        DISPLAY_CHANGE_TO_DATA_MODE;
-
-        i = 0;
-
-        for (; i < 128; i++) {
-            spi_send_recv(0);
+        for (; i < 512; i++) {
+            screen[i] = 0;
         }
 
     }
-}
 void display_update(void) {
 	int i, j, k;
 	int c;

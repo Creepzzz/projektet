@@ -19,26 +19,28 @@
 
 uint8_t screen[128 * 4] = { 0 };
 uint8_t screen2[128 * 4] = { 0 };
+uint8_t screen3[128 * 4] = { 0 };
 int pos = 256;
 int n = 0;
 int count;
 int pos2 = 128;
 int bpos = 128;
+int bpos2 = 0;
 int m = 255;
 int k = 0;
 int gameState;
+int spawnState;
 //Gamestate = 2 => pregame
 //Gamestate = 1 => game over
 //Gamestate = 0 => ongoing game
 int counter;
-
-int gameScore1;
-int gameScore2;
-int gameScore3;
+int res;
+int gameScore1 = 0;
+int gameScore2 = 0;
+int gameScore3 = 0;
 int score;
 int ticks;
 int gameOn;
-
 //gamecounter ökar varje gång ny bil kommer, på port e
 
 int btnpressed = 0;
@@ -77,7 +79,7 @@ void labinit(void)
 		screen[pos + i] = 255;
 
 	display_image(0, screen);
-
+    
 
 }
 
@@ -162,57 +164,89 @@ void MainMenuFade(void) {
 
 /* This function is called repetitively from the main program */
 void labwork(void)
-{   
-	int btnvalue = getbtns();
+{
+    int btnvalue = getbtns();
 
-	if (gameState == 1) {
-		game_over();
-		return;
-	}
-	if (gameState == 3) {
-		high_score();
-		return;
-	}
-
-	if (gameState == 4)
-	{
-		restartgame();
-		return;
-	}
-
-	
-	if (gameState == 2) {                //2 = Main Menu/Start Screen
-		while (gameState == 2) {
-			delay(10);
-			display_string(2, "    Speedo");
-			display_update();
-			if (getbtns() != 0)
-			{
-				gameState = 0;
-			}
-		}
-
-	}
+    if (gameState == 1) {
+        game_over();
+        return;
+    }
+/*    while (gameState==0) {
+        display_image(0, screen); // update image on screen
 
 
-	
+        if (IFS(0)) {
+            IFS(0) = 0;
+           movedownlogic();
+        }
+        if ((getbtns() & 0x01) == 1 && (pos < 384))
+            
+            leftbtnpressed();
+
+        if ((getbtns() & 0x02) == 2 && (pos >= 128 || n >= 1))
+            
+            rightbtnpressed();
+        
+        if ((btnvalue & 0x04) == 4) {
+            MainMenuFade();
+            StartCountDown();
+            delay(500);
+
+        }
+    }*/
+    if (gameState == 2) {//2 = Main Menu/Start Screen
+        while (gameState == 2) {
+            delay(10);
+            display_string(2, "    Speedo");
+            display_update();
+
+            if (getbtns() != 0)
+            {
+                gameState = 0;
+            }
+        }
+
+    }
+    if (gameState == 3) {
+        high_score();
+        return;
+    }
+
+    if (gameState == 4)
+    {
+        restartgame();
+        return;
+    }
+
+    
+    if ((gameState == 5) && (gameOn == 1)) {
+        MainMenuFade();
+        StartCountDown();
+       // gameState = 0;
+    }
+    if(gameState == 7){
+        int i;
+        for(i = 0; i< 8; i++)
+            screen[pos2 + i] = 0;
+     n = 0;
+     count;
+     pos2 = 128;
+     bpos = 128;
+     bpos2 = 0;
+     m = 255;
+        labinit();
+        MainMenuFade();
+               StartCountDown();
+    }
 
 	display_image(0, screen); // update image on screen
 
-
 	if (IFS(0)) {
 		IFS(0) = 0;
-		movedownlogic();
-		
+        movedownlogic();
 	}
+    
 
-	if ((gameState == 5) && (gameOn == 1)) {
-
-		MainMenuFade();
-		StartCountDown();
-		
-		
-	}
 
 	if (btnvalue != 0 && btnpressed == 0) {
 		btnpressed = 1;
@@ -241,6 +275,7 @@ void labwork(void)
 		btnpressed = 0;
 }
 
+
 /* every tick the block moves down and checks if tetris */
 void movedownlogic(void) {
 	int i;
@@ -255,7 +290,7 @@ void movedownlogic(void) {
 	
 
 	}
-	else if ((screen[pos2 - 1] == 254 || screen[pos2 - 1] == 252 || screen[pos2 - 1] == 248 || screen[pos2 - 1] == 240 || screen[pos2 - 1] == 224 || screen[pos2 - 1] == 192 || screen[pos2 - 1] == 128 || screen[pos2 - 1] == 1 || screen[pos2 - 1] == 2 || screen[pos2 - 1] == 4 || screen[pos2 - 1] == 8 || screen[pos2 - 1] == 16 || screen[pos2 - 1] == 32 || screen[pos2 - 1] == 64)&& (bpos-120 == pos2|| bpos - 121 == pos2|| bpos - 122 == pos2|| bpos - 123 == pos2|| bpos - 124 == pos2||bpos-125 == pos2|| bpos - 126 == pos2|| bpos - 127 == pos2|| bpos - 128 == pos2) ) {
+	else if ((screen[pos2 - 1] == 255 || screen[pos2 - 1] == 254 || screen[pos2 - 1] == 252 || screen[pos2 - 1] == 248 || screen[pos2 - 1] == 240 || screen[pos2 - 1] == 224 || screen[pos2 - 1] == 192 || screen[pos2 - 1] == 128 || screen[pos2 - 1] == 1 || screen[pos2 - 1] == 2 || screen[pos2 - 1] == 4 || screen[pos2 - 1] == 8 || screen[pos2 - 1] == 16 || screen[pos2 - 1] == 32 || screen[pos2 - 1] == 64)&& (bpos-120 == pos2|| bpos - 121 == pos2|| bpos - 122 == pos2|| bpos - 123 == pos2|| bpos - 124 == pos2||bpos-125 == pos2|| bpos - 126 == pos2|| bpos - 127 == pos2|| bpos - 128 == pos2) ) {
 
 
 		gameState = 1;
@@ -264,7 +299,9 @@ void movedownlogic(void) {
 
 	}
 	if (bpos - 128 == pos2) {
-		newblock();
+        ticks++;
+        if(gameState == 0 || gameState == 6)
+		newblock(ticks);
 		score++;
 	}
 
@@ -272,38 +309,104 @@ void movedownlogic(void) {
 }
 
 
+// add new block at the top of the screen
+void newblock(int y) {
+    spawnState = y % 3;
+    int i;
+    counter++;
+    
+    
+    if(spawnState == 0){
+        if(counter == 1){
+            for(i = 0; i< 8; i++)
+            screen[pos2 + i] = 0;
+            bpos = 128;
+            pos2 = 128;
+            score++;
+             gameState = 6;
+        }
+        if(counter == 0){
+            for(i = 0; i< 8; i++)
+                screen[pos2 + i] = 0;
+                bpos = 384;
+                pos2 = 384;
+                score++;
+                gameState = 6;
+        }
+        if(counter == 2){
+            for(i = 0; i< 8; i++)
+                screen[pos2 + i] = 0;
+                bpos = 512;
+                pos2 = 512;
+                score++;
+                gameState = 6;
+                counter = 0;
+            }
+    }
+    if(spawnState == 1){
+        if(counter == 0){
+        for(i = 0; i< 8; i++)
+            screen[pos2 + i] = 0;
+            bpos = 512;
+            pos2 = 512;
+            score++;
+            gameState = 6;
+        }
+        if(counter == 1){
+        for(i = 0; i< 8; i++)
+            screen[pos2 + i] = 0;
+            bpos = 256;
+            pos2 = 256;
+            score++;
+            gameState = 6;
+    }
+    if(counter == 2){
+        for(i = 0; i< 8; i++)
+            screen[pos2 + i] = 0;
+            bpos = 128;
+            pos2 = 128;
+            score++;
+            count = 0;
+            gameState = 6;
+            counter = 0;
+        }
+    
+    }
 
-// add new block at the top of the screen 
-void newblock(void) {
-	int blocktype = 0;//(pos+n)%4;  // value between [0-3]
-	int i;
-	counter++;
+    if (spawnState==2) {
+       
+    
+            for(i = 0; i< 8; i++)
+                screen[pos2 + i] = 0;
+                bpos = 384;
+                pos2 = 384;
+                score++;
+                counter = 0;
+                gameState = 6;
+    }
+    
+    if(spawnState == 3){
+        for(i = 0; i< 8; i++)
+            screen[pos2 + i] = 0;
+            bpos = 512;
+            pos2 = 512;
+            score++;
+            counter = 0;
+            gameState = 6;
+    }
 
-	for (i = 0; i < 8; i++) {
-		screen[pos2 + i] = 255;
-
-	}
-
-	if (blocktype == 0)
-		for(i = 0; i< 8; i++)
-			screen[pos2 + i] = 0;
-			pos2 += 128;
-			score++;
-			count = 0;
 }
 
 //right button = go down
 void rightbtnpressed(void) {
-
-	
+	//points();
 	move(2);
 
 }
 
 //left button = go up
 void leftbtnpressed(void) {
-
-	
+	//points();
 	move(1);
 
 }
@@ -352,6 +455,8 @@ void addscore(void) {
 	if (gameScore1 == 0) {
 		gameScore1 = score;
 	}
+    else if(gameScore1 < score)
+        gameScore1 = score;
 	else {
 		sortscore();
 	}
@@ -360,81 +465,73 @@ void sortscore(void) {
 	if (gameScore2 == 0) {
 		gameScore2 = score;
 	}
-	if (gameScore3 == 0) {
+    if (gameScore3 == 0) {
 		gameScore3 = score;
 	}
 	else {
-		if (score > gameScore3 && score < gameScore2) {
-			gameScore3 = score;
-		}
-		if (score > gameScore2&& score < gameScore1) {
-			gameScore2 = score;
-		}
+        if (score > gameScore2 && score < gameScore1) {
+                gameScore2 = score;
+            }
 		else {
-			gameScore1 = score;
+			gameScore3 = score;
 		}
 	}
 }
+
 void game_over(void) {
-	display_string(0, "GAME OVER");
-	display_update();
-	if ((getbtns() & 0x01) == 1) {
-		gameState = 3;
-	}
+     /*   int i;
+        for(i = 0; i< 8; i++)
+    screen[pos2 + i] = 0;*/
+    display_string(0, "GAME OVER");
+    display_update();
+    if ((getbtns() & 0x01) == 1) {
+        gameState = 3;
+    }
 
 
 }
 void restartgame(void) {
-	int score = 0;
-	int pos2 = 128;
-	int bpos = 128;
-	int pos = 256;
-	screen_clear();
-	display_string(0, "");
-	display_string(1, "");
-	display_string(2, "");
-	display_string(3, "");
-	display_update();
-	//delay(2000);
-	gameState = 4;
-	gameOn = 1;
-	btnpressed = 0;
-	if ((getbtns() & 0x01) == 1) {
-		gameState = 5;
-	}
+    display_string(0, "");
+    display_string(1, "");
+    display_string(2, "");
+    display_string(3, "");
+        screen_clear();
+        display_update();
+    //delay(2000);
+    gameState = 4;
+    gameOn = 1;
+    btnpressed = 0;
+    if ((getbtns() & 0x01) == 1) {
+        gameState = 7;
+    }
 
 
 }
 
 void high_score(void) {
-	addscore();
-	int i;
-	char* c1 = itoaconv(gameScore1);
-	display_string(0, "Highscore: ");
-	for (i = 0; i < 3; i++) {
-		if (i == 0) {
-			display_string(1, c1);
-		}
-		if (i == 1){
-			char* c2 = itoaconv(gameScore2);
-				display_string(2, c2); }
-		if (i == 2) {
-			char* c3 = itoaconv(gameScore3);
-				display_string(3, c3);
-		}
-	}
-	display_update();
-	delay(200);
+    addscore();
+    int i;
+    char* c1 = itoaconv(gameScore1);
+    display_string(0, "Highscore: ");
+    for (i = 0; i < 3; i++) {
+        if (i == 0) {
+            display_string(1, c1);
+        }
+        if (i == 1){
+            char* c2 = itoaconv(gameScore2);
+                display_string(2, c2); }
+        if (i == 2) {
+            char* c3 = itoaconv(gameScore3);
+                display_string(3, c3);
+        }
+    }
+    display_update();
+    delay(200);
 
-	if ((getbtns() & 0x01) == 1) {
-		//delay(5000);
-		//restartgame();
-		gameState = 4;
-	}
-	
+    if ((getbtns() & 0x01) == 1) {
+        //delay(5000);
+        //restartgame();
+        gameState = 4;
+    }
+    
 }
-
-
-
-
-
