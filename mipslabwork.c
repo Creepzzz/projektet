@@ -37,6 +37,7 @@ int gameScore2;
 int gameScore3;
 int score;
 int ticks;
+int gameOn;
 
 //gamecounter ökar varje gång ny bil kommer, på port e
 
@@ -173,6 +174,12 @@ void labwork(void)
 		return;
 	}
 
+	if (gameState == 4)
+	{
+		restartgame();
+		return;
+	}
+
 	
 	if (gameState == 2) {                //2 = Main Menu/Start Screen
 		while (gameState == 2) {
@@ -188,8 +195,7 @@ void labwork(void)
 	}
 
 
-	if (gamepaused)
-		return;
+	
 
 	display_image(0, screen); // update image on screen
 
@@ -197,9 +203,16 @@ void labwork(void)
 	if (IFS(0)) {
 		IFS(0) = 0;
 		movedownlogic();
-		ticks++;
+		
 	}
 
+	if ((gameState == 5) && (gameOn == 1)) {
+
+		MainMenuFade();
+		StartCountDown();
+		
+		
+	}
 
 	if (btnvalue != 0 && btnpressed == 0) {
 		btnpressed = 1;
@@ -221,14 +234,7 @@ void labwork(void)
 
 			gameState = 0;
 
-			if ((gameState == 0) && (btnvalue & 0x04 == 4)) {
-				screen_clear();
-				display_string(0, "Game paused");
-				display_string(1, "");
-				display_string(2, "");
-				display_update();
-				gamepaused = 1;
-			}
+			
 		}
 	}
 	else if (btnvalue == 0)
@@ -289,7 +295,7 @@ void newblock(void) {
 //right button = go down
 void rightbtnpressed(void) {
 
-	//points();
+	
 	move(2);
 
 }
@@ -297,7 +303,7 @@ void rightbtnpressed(void) {
 //left button = go up
 void leftbtnpressed(void) {
 
-	//points();
+	
 	move(1);
 
 }
@@ -384,8 +390,22 @@ void restartgame(void) {
 	int bpos = 128;
 	int pos = 256;
 	screen_clear();
-	gameState = 0;
+	display_string(0, "");
+	display_string(1, "");
+	display_string(2, "");
+	display_string(3, "");
+	display_update();
+	//delay(2000);
+	gameState = 4;
+	gameOn = 1;
+	btnpressed = 0;
+	if ((getbtns() & 0x01) == 1) {
+		gameState = 5;
+	}
+
+
 }
+
 void high_score(void) {
 	addscore();
 	int i;
@@ -404,14 +424,16 @@ void high_score(void) {
 		}
 	}
 	display_update();
-	delay(2000);
-	while (!getbtns()) {
-		delay(20000);
+	delay(200);
+
+	if ((getbtns() & 0x01) == 1) {
+		//delay(5000);
+		//restartgame();
+		gameState = 4;
 	}
-	while(getbtns())
-		restartgame();
 	
 }
+
 
 
 
